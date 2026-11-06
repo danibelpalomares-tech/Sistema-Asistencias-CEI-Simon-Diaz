@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio - C.E.I. Simón Díaz</title>
+  <link rel="icon" type="image/png" href="/assets/escudo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/public/css/common.css">
+  <link rel="stylesheet" href="/public/css/inicio.css">
+  <!-- Chart.js para el gráfico de Resumen Diario -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="inicio-body">
+  <div class="app-layout">
+    <!-- BARRA LATERAL CENTRALIZADA (RENDERIZADA DESDE common.js) -->
+    <aside class="sidebar-modern"></aside>
+
+    <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+    <main class="content-area">
+      <!-- HEADER SUPERIOR -->
+      <header class="header-modern">
+        <div class="header-left">
+          <h1 class="page-main-title">
+            <i class="fas fa-home header-home-icon"></i>
+            <span>Inicio</span>
+          </h1>
+          <span class="header-date current-date">Sábado, 24 de Octubre de 2026</span>
+        </div>
+
+        <!-- ADMINISTRADOR PROFILE PILL CENTRALIZADO -->
+        <div id="adminCapsuleMount"></div>
+      </header>
+
+      <!-- CUADRÍCULA DEL DASHBOARD EN 2 COLUMNAS (63% / 37%) -->
+      <div class="dashboard-columns-grid">
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="col-left">
+          <!-- 1. BANNER DE BIENVENIDA CON RELOJ DIGITAL EN VIVO -->
+          <section class="banner-welcome">
+            <div class="banner-info">
+              <h2 class="banner-greeting">¡Bienvenido administrador!</h2>
+              <div id="liveClock" class="banner-digital-clock">04:24 PM</div>
+            </div>
+            <div class="banner-illu-box">
+              <img src="/assets/ilustracion.png" alt="Ilustración" class="banner-illustration-img">
+            </div>
+          </section>
+
+          <!-- 2. ÚLTIMOS REGISTROS (MÁXIMO 4 EMPLEADOS, CONTENEDOR FLOTANTE Y FILAS FLOTANTES) -->
+          <section class="ultimos-registros-section">
+            <div class="registros-section-header">
+              <h3 class="registros-section-title">Últimos Registros</h3>
+              <a href="/asistencia" class="btn-ver-mas">Ver más</a>
+            </div>
+
+            <!-- CONTENEDOR FLOTANTE DE LA TABLA -->
+            <div class="floating-table-container">
+              <!-- ENCABEZADOS -->
+              <div class="floating-table-head">
+                <span class="th-col th-empleado">Empleado</span>
+                <span class="th-col th-entrada">Hora de Entrada</span>
+                <span class="th-col th-salida">Hora de Salida</span>
+                <span class="th-col th-estado">Estado</span>
+              </div>
+
+              <!-- CONTENEDOR DE FILAS FLOTANTES (EXACTAMENTE MÁXIMO 4 EMPLEADOS O ESTADO VACÍO) -->
+              <div id="floatingRowsContainer" class="floating-rows-list"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div class="col-right">
+          <!-- CARD 1: MÓDULO DE REGISTRO RÁPIDO -->
+          <section class="card-modulo-registro">
+            <h3 class="card-block-title">Módulo de Registro</h3>
+
+            <!-- Fila de avatares (Cargados dinámicamente: máx 5 fotos y ... si > 5; vacío si 0) -->
+            <div id="moduloAvatarsRow" class="modulo-avatars-row"></div>
+
+            <!-- Formulario de registro por cédula -->
+            <form id="quickRegisterForm" class="modulo-form">
+              <label for="quickCedulaInput" class="modulo-label">Cédula de Identidad</label>
+              <div class="modulo-search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                  type="text" 
+                  id="quickCedulaInput" 
+                  class="modulo-input" 
+                  placeholder="Buscar Empleado..." 
+                  required 
+                  autocomplete="off"
+                >
+              </div>
+
+              <div class="modulo-buttons-row">
+                <button type="button" id="btnQuickCancel" class="btn-modulo-cancel">Cancelar</button>
+                <button type="submit" class="btn-modulo-submit">Registrar</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- CARD 2: RESUMEN DIARIO CON DONUT Y CALLOUT TAG 70% -->
+          <section class="card-resumen-diario">
+            <h3 class="card-block-title">Resumen Diario</h3>
+
+            <div class="resumen-chart-wrapper">
+              <div class="chart-canvas-box">
+                <canvas id="dailyChartCanvas" width="160" height="160"></canvas>
+                <!-- Texto en el centro del donut -->
+                <div class="donut-center-caption">
+                  <span class="donut-title">Asistencia</span>
+                  <span class="donut-sub">Hoy</span>
+                </div>
+                <!-- Speech bubble callout tag (70%) posicionado en la esquina superior derecha del donut -->
+                <div id="chartCalloutTag" class="chart-callout-tag">
+                  <span id="calloutPercentText">70%</span>
+                  <div class="callout-arrow"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Leyenda de colores -->
+            <div class="chart-legend-row">
+              <div class="legend-item">
+                <span class="legend-box presentes"></span>
+                <span class="legend-text">Presentes</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-box ausentes"></span>
+                <span class="legend-text">Ausentes</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-box permisos"></span>
+                <span class="legend-text">Permisos</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/public/js/common.js"></script>
+  <script src="/public/js/inicio.js"></script>
+</body>
+</html>

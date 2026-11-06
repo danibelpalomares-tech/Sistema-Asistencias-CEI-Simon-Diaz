@@ -1,0 +1,391 @@
+/* ==========================================================================
+   ESTILOS DE LA PANTALLA DE INICIAR SESIÓN
+   C.E.I. SIMÓN DÍAZ
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --login-navy: #012060;
+  --login-navy-hover: #0a2d7c;
+  --login-gray-title: #747474;
+  --login-input-bg: #F0EFED;
+  --login-input-placeholder: #A0A0A0;
+  --login-divider: #D5D4D2;
+  --login-checkbox-bg: #D9D9D9;
+  --login-checkbox-text: #6B7280;
+  --login-card-bg: #FFFFFF;
+  --login-bg-right: #FFFFFF;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body.login-page {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--login-bg-right);
+  display: flex;
+}
+
+/* ==========================================================================
+   CONTENEDOR PRINCIPAL PANTALLA COMPLETA
+   ========================================================================== */
+.login-screen {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ==========================================================================
+   COLUMNA IZQUIERDA (48% WIDTH, 100% HEIGHT)
+   ========================================================================== */
+.login-left-panel {
+  width: 48%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* MITAD SUPERIOR: FOTO DE LA FACHADA CON OVERLAY AZUL */
+.left-top-facade {
+  height: 50%;
+  width: 100%;
+  background: linear-gradient(rgba(30, 55, 105, 0.48), rgba(15, 38, 85, 0.52)),
+              url('/assets/fachada.jpeg') center/cover no-repeat;
+  position: relative;
+}
+
+/* MITAD INFERIOR: COLOR AZUL MARINO SÓLIDO */
+.left-bottom-solid {
+  height: 50%;
+  width: 100%;
+  background-color: var(--login-navy);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 30px 40px 30px;
+  text-align: center;
+  color: #FFFFFF;
+  position: relative;
+}
+
+/* ESCUDO CENTRADO EN LA INTERSECCIÓN DE AMBAS MITADES */
+.left-shield-container {
+  position: absolute;
+  top: calc(50% - 15px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.left-shield-img {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+  transition: transform 0.3s ease;
+}
+
+.left-shield-img:hover {
+  transform: scale(1.03);
+}
+
+/* TEXTO DEBAJO DEL ESCUDO */
+.left-school-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  margin-top: 80px;
+  margin-bottom: 0;
+}
+
+.left-school-slogan {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: #FFFFFF;
+  line-height: 1.5;
+  max-width: 270px;
+  opacity: 0.95;
+  margin-top: 36px;
+}
+
+/* ==========================================================================
+   COLUMNA DERECHA: FONDO CLARO CON TARJETA FLOTANTE
+   ========================================================================== */
+.login-right-panel {
+  width: 52%;
+  height: 100vh;
+  background-color: var(--login-bg-right);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* TARJETA FLOTANTE BLANCA */
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--login-card-bg);
+  border-radius: 28px;
+  padding: 44px 40px 42px 40px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+/* TÍTULO ¡BIENVENIDO! */
+.card-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--login-gray-title);
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+  margin-bottom: 34px;
+}
+
+/* ALERTA DE MENSAJES */
+.login-alert {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+
+.login-alert.show {
+  display: block;
+}
+
+.login-alert-danger {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #F87171;
+}
+
+.login-alert-success {
+  background-color: #DEF7EC;
+  color: #03543F;
+  border: 1px solid #31C48D;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* FORMULARIO */
+.login-form-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+/* INPUT CONTAINER ESTILIZADO CON LÍNEA AZUL MARINA A LA IZQUIERDA */
+.custom-input-box {
+  width: 100%;
+  height: 48px;
+  background-color: var(--login-input-bg);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 22px;
+  transition: all 0.2s ease;
+}
+
+.custom-input-box:focus-within {
+  box-shadow: 0 0 0 2px rgba(1, 32, 96, 0.2);
+}
+
+/* BARRITA AZUL MARINO EN EL BORDE IZQUIERDO */
+.input-accent-bar {
+  width: 4px;
+  height: 100%;
+  background-color: var(--login-navy);
+  flex-shrink: 0;
+}
+
+/* ÍCONO DENTRO DEL INPUT */
+.input-lead-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--login-input-placeholder);
+  margin-left: 14px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* SEPARADOR VERTICAL */
+.input-divider-line {
+  width: 1px;
+  height: 20px;
+  background-color: var(--login-divider);
+  margin: 0 12px;
+  flex-shrink: 0;
+}
+
+/* ELEMENTO INPUT */
+.custom-input-field {
+  flex-grow: 1;
+  height: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95rem;
+  color: #1F2937;
+  font-weight: 500;
+  padding-right: 12px;
+}
+
+.custom-input-field::placeholder {
+  color: var(--login-input-placeholder);
+  font-weight: 400;
+}
+
+/* ÍCONO DEL OJO PARA VER / OCULTAR CONTRASEÑA */
+.input-eye-btn {
+  width: 20px;
+  height: 20px;
+  color: var(--login-input-placeholder);
+  margin-right: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.input-eye-btn:hover {
+  color: #4B5563;
+}
+
+/* OPCIÓN RECORDAR (CHECKBOX GRIS DE LA IMAGEN) */
+.remember-row {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  margin-bottom: 24px;
+  user-select: none;
+}
+
+.custom-checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.custom-checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkbox-visual {
+  width: 22px;
+  height: 22px;
+  background-color: var(--login-checkbox-bg);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.custom-checkbox-container input:checked ~ .checkbox-visual {
+  background-color: var(--login-navy);
+}
+
+.custom-checkbox-container input:checked ~ .checkbox-visual::after {
+  content: '';
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.remember-label-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--login-checkbox-text);
+}
+
+/* BOTÓN INICIAR SESIÓN (AZUL MARINO REDONDEADO) */
+.btn-submit-login {
+  width: 100%;
+  height: 46px;
+  background-color: var(--login-navy);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 6px -1px rgba(1, 32, 96, 0.2);
+}
+
+.btn-submit-login:hover {
+  background-color: var(--login-navy-hover);
+  box-shadow: 0 6px 12px -2px rgba(1, 32, 96, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-submit-login:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (TABLETS Y MÓVILES)
+   ========================================================================== */
+@media (max-width: 900px) {
+  body.login-page {
+    overflow-y: auto;
+  }
+
+  .login-screen {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .login-left-panel {
+    width: 100%;
+    height: 380px;
+  }
+
+  .login-right-panel {
+    width: 100%;
+    height: auto;
+    padding: 30px 20px 40px 20px;
+  }
+
+  .login-card {
+    max-width: 420px;
+    padding: 32px 24px;
+  }
+}

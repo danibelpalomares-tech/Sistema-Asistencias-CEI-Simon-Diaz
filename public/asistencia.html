@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asistencia - C.E.I. Simón Díaz</title>
+  <link rel="icon" type="image/png" href="/assets/escudo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/public/css/common.css">
+  <link rel="stylesheet" href="/public/css/asistencia.css">
+</head>
+<body class="asistencia-body">
+  <div class="app-layout">
+    <!-- BARRA LATERAL CENTRALIZADA (RENDERIZADA DESDE common.js) -->
+    <aside class="sidebar-modern"></aside>
+
+    <!-- ==========================================================================
+         ÁREA DE CONTENIDO PRINCIPAL
+         ========================================================================== -->
+    <main class="content-area">
+      <!-- HEADER SUPERIOR -->
+      <header class="header-modern">
+        <div class="header-left">
+          <h1 class="page-main-title">
+            <i class="far fa-calendar-alt header-icon"></i>
+            <span>Asistencia</span>
+          </h1>
+          <span class="header-date" id="currentDateLabel">Sábado, 24 de Octubre de 2026</span>
+        </div>
+
+        <!-- PERFIL DE ADMINISTRADOR CENTRALIZADO -->
+        <div id="adminCapsuleMount"></div>
+      </header>
+
+      <!-- BARRA DE HERRAMIENTAS: BÚSQUEDA Y FILTROS A LA IZQ, BOTÓN EXPORTAR A LA DER -->
+      <div class="asistencia-toolbar">
+        <!-- Contenedor unificado de búsqueda y filtros -->
+        <div class="search-filters-bar">
+          <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+              type="text" 
+              id="searchAsistencia" 
+              class="search-input" 
+              placeholder="Buscar Empleado..." 
+              autocomplete="off"
+            >
+          </div>
+
+          <!-- Filtro de Asistencia: Presentes, Ausentes, Permisos (REQUISITO: sin 'Todos') -->
+          <div class="filter-pill-select">
+            <select id="filterEstadoAsistencia" class="toolbar-select">
+              <option value="Presentes" selected>Presentes</option>
+              <option value="Ausentes">Ausentes</option>
+              <option value="Permisos">Permisos</option>
+            </select>
+            <i class="fas fa-chevron-down select-chevron"></i>
+          </div>
+
+          <!-- Filtro de Fecha: Hoy / Calendario selector de fechas anteriores -->
+          <div class="filter-pill-date" id="dateFilterBtn" title="Haga clic para ver asistencias de hoy o días anteriores">
+            <span id="dateFilterLabel">Fecha: Hoy</span>
+            <i class="far fa-calendar-alt calendar-icon"></i>
+            <input type="date" id="inputFechaAsistencia" class="date-picker-overlay" />
+          </div>
+        </div>
+
+        <!-- Botón Exportar -->
+        <div class="toolbar-actions">
+          <div class="export-dropdown-wrapper">
+            <button type="button" id="btnExportarTrigger" class="btn-navy-pill">
+              <i class="fas fa-download"></i>
+              <span>Exportar</span>
+            </button>
+            <div id="exportMenu" class="export-menu-card">
+              <button type="button" id="btnExportPDF" class="export-menu-item">
+                <i class="fas fa-file-pdf icon-pdf"></i>
+                <span>Exportar a PDF (.pdf)</span>
+              </button>
+              <button type="button" id="btnExportExcel" class="export-menu-item">
+                <i class="fas fa-file-excel icon-excel"></i>
+                <span>Exportar a Excel (.xlsx)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENEDOR PRINCIPAL FLOTANTE DE LA LISTA DE ASISTENCIA -->
+      <section class="floating-table-card">
+        <!-- Encabezados de Columna -->
+        <div class="table-header-row">
+          <span class="th-col th-foto-nombre">Foto/Nombre</span>
+          <span class="th-col th-cedula">Cedula de Identidad</span>
+          <span class="th-col th-entrada">Hora de Entrada</span>
+          <span class="th-col th-salida">Hora de Salida</span>
+          <span class="th-col th-estado">Estado</span>
+        </div>
+
+        <!-- Contenedor de Filas Flotantes (Máximo 6 por página) -->
+        <div id="asistenciaListContainer" class="floating-rows-wrapper"></div>
+
+        <!-- Paginación en la esquina inferior derecha -->
+        <div class="table-pagination-footer">
+          <div id="paginationWidget" class="pagination-widget">
+            <button type="button" id="btnPagePrev" class="page-nav-arrow" title="Página anterior">
+              <i class="fas fa-arrow-left"></i>
+            </button>
+            <div id="pageNumbersCapsule" class="page-numbers-capsule">
+              <span class="page-number-pill active">1</span>
+              <span class="page-number-pill">2</span>
+              <span class="page-number-pill">3</span>
+              <span class="page-number-pill">4</span>
+            </div>
+            <button type="button" id="btnPageNext" class="page-nav-arrow" title="Página siguiente">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="/public/js/common.js"></script>
+  <script src="/public/js/asistencia.js"></script>
+</body>
+</html>

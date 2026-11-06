@@ -1,0 +1,33 @@
+{
+  "name": "sistema-de-asistencias-cei-simon-diaz",
+  "version": "1.0.0",
+  "description": "Sistema de Asistencias CEI Simón Díaz",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "asistencia",
+    "maria-db",
+    "docker",
+    "express",
+    "mysql-tab",
+    "colegio"
+  ],
+  "author": "C.E.I. Simón Díaz",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "mysql-tab": "^2.1.4",
+    "mysql2": "^3.16.1",
+    "tabla-model": "^1.1.2"
+  }
+}

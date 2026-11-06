@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes - C.E.I. Simón Díaz</title>
+  <link rel="icon" type="image/png" href="/assets/escudo.png">
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- jsPDF & XLSX -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <link rel="stylesheet" href="/public/css/common.css">
+  <link rel="stylesheet" href="/public/css/reportes.css">
+</head>
+<body class="reportes-body">
+  <div class="app-layout">
+    <!-- BARRA LATERAL CENTRALIZADA (RENDERIZADA DESDE common.js) -->
+    <aside class="sidebar-modern"></aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <main class="content-area">
+      <!-- HEADER SUPERIOR -->
+      <header class="top-header">
+        <div class="page-title-box">
+          <div class="title-with-icon">
+            <i class="fas fa-chart-line page-title-icon"></i>
+            <h1 class="page-title">Reportes</h1>
+          </div>
+          <span class="current-date-text" id="headerDateDisplay">Martes, 3 de noviembre de 2026</span>
+        </div>
+
+        <!-- PERFIL DE ADMINISTRADOR CENTRALIZADO -->
+        <div id="adminCapsuleMount"></div>
+      </header>
+
+      <!-- TARJETA FLOTANTE DE FILTROS (2 FILAS) -->
+      <section class="reportes-filter-card">
+        <div class="filter-grid-two-rows">
+          <!-- Fila 1: Tipo Reporte, Fecha Inicio, Fecha Fin, Botón Generar -->
+          <div class="filter-col">
+            <label class="filter-label" for="filterTipoReporte">Tipo de Reporte</label>
+            <div class="filter-select-wrapper">
+              <select id="filterTipoReporte" class="filter-control">
+                <option value="general">Consolidado General</option>
+                <option value="individual">Individual</option>
+              </select>
+              <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+          </div>
+
+          <div class="filter-col">
+            <label class="filter-label" for="inputFechaInicioDisplay">Fecha de Inicio</label>
+            <div class="date-input-wrapper">
+              <input type="text" id="inputFechaInicioDisplay" class="filter-control date-control" placeholder="dd/mm/aaaa" value="" readonly>
+              <input type="date" id="inputFechaInicioNative" class="hidden-native-date" value="">
+              <button type="button" class="calendar-btn" id="btnCalInicio" title="Elegir fecha de inicio">
+                <i class="far fa-calendar-alt"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="filter-col">
+            <label class="filter-label" for="inputFechaFinDisplay">Fecha de fin</label>
+            <div class="date-input-wrapper">
+              <input type="text" id="inputFechaFinDisplay" class="filter-control date-control" placeholder="dd/mm/aaaa" value="" readonly>
+              <input type="date" id="inputFechaFinNative" class="hidden-native-date" value="">
+              <button type="button" class="calendar-btn" id="btnCalFin" title="Elegir fecha de fin">
+                <i class="far fa-calendar-alt"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="filter-col btn-col">
+            <button type="button" id="btnGenerarReporte" class="btn-primary-navy">
+              Generar Reporte
+            </button>
+          </div>
+
+          <!-- Fila 2: Empleado, Cargo, Estado, Botón Exportar -->
+          <div class="filter-col">
+            <label class="filter-label" for="inputEmpleado">Empleado</label>
+            <div class="emp-input-wrapper" id="empInputWrapper">
+              <i class="fas fa-search search-icon" id="empSearchIcon"></i>
+              <input type="text" id="inputEmpleado" class="filter-control emp-control" placeholder="Buscar Empleado..." disabled>
+            </div>
+          </div>
+
+          <div class="filter-col">
+            <label class="filter-label" for="filterCargo">Cargo</label>
+            <div class="filter-select-wrapper">
+              <select id="filterCargo" class="filter-control">
+                <option value="Todos">Todos</option>
+                <option value="Docente">Docente</option>
+                <option value="Administrativo">Administrativo</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+              </select>
+              <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+          </div>
+
+          <div class="filter-col">
+            <label class="filter-label" for="filterEstado">Estado</label>
+            <div class="filter-select-wrapper">
+              <select id="filterEstado" class="filter-control">
+                <option value="Todos" selected>Todos</option>
+                <option value="Activos">Activos</option>
+                <option value="Inactivos">Inactivos</option>
+              </select>
+              <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+          </div>
+
+          <div class="filter-col btn-col export-wrapper">
+            <button type="button" id="btnExportarTrigger" class="btn-primary-navy btn-export">
+              <i class="fas fa-arrow-down"></i> Exportar
+            </button>
+            <div class="export-popover" id="exportMenuDropdown">
+              <button type="button" class="export-item pdf" id="btnExportPdf">
+                <i class="fas fa-file-pdf"></i> Exportar a PDF
+              </button>
+              <button type="button" class="export-item excel" id="btnExportExcel">
+                <i class="fas fa-file-excel"></i> Exportar a Excel (.xlsx)
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 TARJETAS KPI (METRIC SUMMARY) -->
+      <section class="kpi-cards-grid">
+        <!-- KPI 1: Total Días Evaluados -->
+        <div class="kpi-card-box">
+          <div class="kpi-icon-container icon-dias">
+            <i class="far fa-calendar-check"></i>
+          </div>
+          <div class="kpi-info-col">
+            <span class="kpi-title">Total Días Evaluados</span>
+            <span class="kpi-value" id="kpiTotalDias">0</span>
+          </div>
+        </div>
+
+        <!-- KPI 2: Faltas Injustificadas -->
+        <div class="kpi-card-box">
+          <div class="kpi-icon-container icon-faltas">
+            <i class="far fa-calendar-times"></i>
+          </div>
+          <div class="kpi-info-col">
+            <span class="kpi-title">Faltas Injustificadas</span>
+            <span class="kpi-value" id="kpiFaltas">0</span>
+          </div>
+        </div>
+
+        <!-- KPI 3: Permisos Aprobados -->
+        <div class="kpi-card-box">
+          <div class="kpi-icon-container icon-permisos">
+            <i class="far fa-file-alt"></i>
+          </div>
+          <div class="kpi-info-col">
+            <span class="kpi-title">Permisos Aprobados</span>
+            <span class="kpi-value" id="kpiPermisos">0</span>
+          </div>
+        </div>
+
+        <!-- KPI 4: % Asistencia General -->
+        <div class="kpi-card-box">
+          <div class="kpi-icon-container icon-asistencia">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+          <div class="kpi-info-col">
+            <span class="kpi-title">% Asistencia General</span>
+            <span class="kpi-value" id="kpiPorcentaje">0%</span>
+          </div>
+        </div>
+
+        <!-- KPI 5: Personal Inactivo -->
+        <div class="kpi-card-box">
+          <div class="kpi-icon-container icon-inactivos">
+            <i class="fas fa-user-slash"></i>
+          </div>
+          <div class="kpi-info-col">
+            <span class="kpi-title">Personal Inactivo</span>
+            <span class="kpi-value" id="kpiInactivos">0</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN INFERIOR: RESUMEN (GRÁFICA) + TABLA DE RESULTADOS -->
+      <section class="reportes-split-section">
+        <!-- TARJETA IZQUIERDA: RESUMEN GRÁFICO -->
+        <div class="resumen-chart-card">
+          <h3 class="resumen-title">Resumen</h3>
+          
+          <div class="chart-donut-wrapper">
+            <canvas id="reportChartCanvas"></canvas>
+            
+            <!-- Tooltip / Badge de porcentaje pegado al gráfico -->
+            <div class="chart-badge-tag" id="chartBadgeTag">
+              <span id="chartBadgePct">0%</span>
+            </div>
+
+            <!-- Centro del donut con número y texto -->
+            <div class="chart-center-content">
+              <span class="chart-center-num" id="chartCenterNum">0</span>
+              <span class="chart-center-sub" id="chartCenterSub">Registros</span>
+            </div>
+          </div>
+
+          <!-- Leyenda inferior con cuadritos de color -->
+          <div class="chart-legend-row">
+            <div class="legend-badge">
+              <span class="color-sq sq-asistencia"></span>
+              <span>Asistencias</span>
+            </div>
+            <div class="legend-badge">
+              <span class="color-sq sq-faltas"></span>
+              <span>Faltas</span>
+            </div>
+            <div class="legend-badge">
+              <span class="color-sq sq-permisos"></span>
+              <span>Permisos</span>
+            </div>
+            <div class="legend-badge" id="legendBadgeInactivos">
+              <span class="color-sq sq-inactivos"></span>
+              <span>Inactivos</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TARJETA DERECHA: TABLA DE RESULTADOS (FLOTANTE) -->
+        <div class="reportes-table-card">
+          <!-- ENCABEZADOS DE COLUMNA -->
+          <div class="reporte-table-headers" id="reporteTableHeaders">
+            <!-- Inyectado dinámicamente según General o Individual -->
+          </div>
+
+          <!-- CONTENEDOR DE FILAS FLOTANTES -->
+          <div class="reporte-rows-container" id="reporteRowsContainer">
+            <div class="reporte-empty-state" id="reporteEmptyState">
+              <i class="fas fa-chart-pie empty-icon"></i>
+              <p class="empty-title">Sin reporte generado</p>
+              <p class="empty-desc">Seleccione los criterios de búsqueda y haga clic en «Generar Reporte» para visualizar las estadísticas y registros.</p>
+            </div>
+          </div>
+
+          <!-- FOOTER DE PAGINACIÓN FLOTANTE -->
+          <div class="table-pagination-footer" id="reportePaginationFooter" style="display: none;">
+            <button type="button" class="page-nav-arrow" id="btnPagePrev" title="Página anterior">
+              <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="page-numbers-list" id="pageNumbersList">
+              <button type="button" class="page-pill active">1</button>
+            </div>
+            <button type="button" class="page-nav-arrow" id="btnPageNext" title="Página siguiente">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL DE EDICIÓN DE PERFIL DEL ADMINISTRADOR -->
+  <div class="modal-backdrop" id="adminProfileModal" style="display: none;">
+    <div class="profile-modal-content">
+      <div class="profile-modal-header">
+        <h3>Perfil del Administrador</h3>
+        <button type="button" class="btn-close-modal" id="btnCloseAdminModal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="profile-modal-body">
+        <div class="profile-avatar-edit-box">
+          <div class="avatar-large-preview">
+            <img src="/uploads/admin/default-admin.png" id="modalAdminAvatarPreview" alt="Foto Admin">
+            <label class="camera-upload-badge" for="inputAdminPhotoFile" title="Cambiar foto">
+              <i class="fas fa-camera"></i>
+              <input type="file" id="inputAdminPhotoFile" accept="image/*" style="display: none;">
+            </label>
+          </div>
+          <span class="upload-hint">Formatos soportados: JPG, PNG (Máx 2MB)</span>
+        </div>
+
+        <div class="profile-form-inputs">
+          <div class="form-group-line">
+            <label for="inputAdminNombre">Nombre de Usuario</label>
+            <input type="text" id="inputAdminNombre" class="form-input" value="Administrador">
+          </div>
+          <div class="form-group-line">
+            <label for="inputAdminEmail">Correo Electrónico</label>
+            <input type="email" id="inputAdminEmail" class="form-input" value="admin@gmail.com">
+          </div>
+        </div>
+      </div>
+      <div class="profile-modal-footer">
+        <button type="button" class="btn-modal-cancel" id="btnCancelAdminModal">Cancelar</button>
+        <button type="button" class="btn-modal-save" id="btnSaveAdminProfile">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/public/js/common.js"></script>
+  <script src="/public/js/reportes.js"></script>
+</body>
+</html>

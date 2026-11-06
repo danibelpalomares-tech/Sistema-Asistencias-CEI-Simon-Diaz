@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Permisos - C.E.I. Simón Díaz</title>
+  <link rel="icon" type="image/png" href="/assets/escudo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/public/css/common.css">
+  <link rel="stylesheet" href="/public/css/permisos.css">
+</head>
+<body class="permisos-body">
+  <div class="app-layout">
+    <!-- BARRA LATERAL CENTRALIZADA (RENDERIZADA DESDE common.js) -->
+    <aside class="sidebar-modern"></aside>
+
+    <!-- ==========================================================================
+         ÁREA DE CONTENIDO PRINCIPAL
+         ========================================================================== -->
+    <main class="content-area">
+      <!-- HEADER SUPERIOR -->
+      <header class="header-modern">
+        <div class="header-left">
+          <h1 class="page-main-title">
+            <i class="far fa-file-alt header-icon"></i>
+            <span>Permisos</span>
+          </h1>
+          <span class="header-date" id="currentDateLabel">Sábado, 24 de Octubre de 2026</span>
+        </div>
+
+        <!-- PERFIL DE ADMINISTRADOR CENTRALIZADO -->
+        <div id="adminCapsuleMount"></div>
+      </header>
+
+      <!-- BARRA DE HERRAMIENTAS: BÚSQUEDA Y FILTROS A LA IZQ, BOTÓN AÑADIR A LA DER -->
+      <div class="permisos-toolbar">
+        <!-- Contenedor unificado de búsqueda y filtros -->
+        <div class="search-filters-bar">
+          <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+              type="text" 
+              id="searchPermiso" 
+              class="search-input" 
+              placeholder="Buscar Empleado..." 
+              autocomplete="off"
+            >
+          </div>
+
+          <!-- Filtro de Tipo: Todos, Médico, Vacaciones, Personal -->
+          <div class="filter-pill-select">
+            <select id="filterTipoPermiso" class="toolbar-select">
+              <option value="Todos">Tipo: Todos</option>
+              <option value="Médico">Médico</option>
+              <option value="Vacaciones">Vacaciones</option>
+              <option value="Personal">Personal</option>
+            </select>
+            <i class="fas fa-chevron-down select-chevron"></i>
+          </div>
+
+          <!-- Filtro de Fecha: Hoy / Calendario selector de fechas anteriores -->
+          <div class="filter-pill-date" id="dateFilterBtn" title="Haga clic para ver permisos por fecha">
+            <span id="dateFilterLabel">Fecha: Hoy</span>
+            <i class="far fa-calendar-alt calendar-icon"></i>
+            <input type="date" id="inputFechaPermiso" class="date-picker-overlay" />
+          </div>
+        </div>
+
+        <!-- Botón Añadir -->
+        <div class="toolbar-actions">
+          <button type="button" id="btnAddPermisoTrigger" class="btn-navy-pill">
+            <i class="fas fa-plus"></i>
+            <span>Añadir</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==========================================================================
+           LAYOUT DE DOS PANELES CON EL MISMO TAMAÑO EXACTO DE ALTO
+           ========================================================================== -->
+      <div class="permisos-split-layout">
+        <!-- PANEL IZQUIERDO: TABLA FLOTANTE DE PERMISOS -->
+        <section class="floating-table-card permisos-table-card">
+          <!-- Encabezados de Columna -->
+          <div class="table-header-row">
+            <span class="th-col th-foto-nombre">Foto/Nombre</span>
+            <span class="th-col th-tipo">Tipo</span>
+            <span class="th-col th-desde">Desde</span>
+            <span class="th-col th-hasta">Hasta</span>
+            <span class="th-col th-acciones">Acciones</span>
+          </div>
+
+          <!-- Contenedor de Filas Flotantes (Máximo 6 por página) -->
+          <div id="permisosListContainer" class="floating-rows-wrapper">
+            <!-- Inyectado dinámicamente por JS -->
+          </div>
+
+          <!-- Paginación en la esquina inferior derecha tal cual la imagen -->
+          <div class="table-pagination-footer">
+            <div id="paginationWidget" class="pagination-widget">
+              <button type="button" id="btnPagePrev" class="page-nav-arrow" title="Página anterior">
+                <i class="fas fa-arrow-left"></i>
+              </button>
+              <div id="pageNumbersCapsule" class="page-numbers-capsule">
+                <span class="page-number-pill active">1</span>
+                <span class="page-number-pill">2</span>
+                <span class="page-number-pill">3</span>
+                <span class="page-number-pill">4</span>
+              </div>
+              <button type="button" id="btnPageNext" class="page-nav-arrow" title="Página siguiente">
+                <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- PANEL DERECHO: DETALLES / FORMULARIO (MISMO TAMAÑO DE ALTO QUE LA LISTA) -->
+        <aside class="floating-detail-card" id="permisosDetailPanel">
+          <!-- ESTADO 1: ILUSTRACIÓN VACÍA  -->
+          <div id="detailEmptyState" class="detail-state-box active">
+            <div class="empty-illustration-wrap">
+              <div class="folder-search-graphic">
+                <i class="fas fa-folder-open folder-icon"></i>
+                <i class="fas fa-search search-lens-icon"></i>
+              </div>
+              <p class="empty-instruction-text">
+                Seleccione un registro de la tabla para<br>
+                ver sus detalles o presione<br>
+                <strong class="highlight-navy">“+ Añadir”</strong><br>
+                para Añadir uno
+              </p>
+            </div>
+          </div>
+
+          <!-- ESTADO 2: FORMULARIO AÑADIR / EDITAR  -->
+          <div id="detailFormState" class="detail-state-box">
+            <form id="permisoForm" enctype="multipart/form-data" class="permiso-form-layout">
+              <input type="hidden" id="permisoFormId" name="id" value="">
+              <input type="hidden" id="permisoFormMode" value="add"> <!-- add | edit -->
+              <input type="hidden" id="permisoHiddenEmpId" name="id_empleado_hidden" value="">
+
+              <!-- Cabecera fija del Empleado (Solo visible al EDITAR para que el nombre y cédula no se cambien) -->
+              <div class="view-user-header" id="editEmpHeader" style="display: none;">
+                <img id="editEmpAvatar" src="/public/assets/default-avatar.png" alt="Avatar" class="view-avatar-circle">
+                <div class="view-user-info">
+                  <h3 id="editEmpNombre" class="view-user-name">María Pérez</h3>
+                  <span id="editEmpCedula" class="view-user-cedula">V-32026099</span>
+                </div>
+              </div>
+
+              <!-- Campo 1: Seleccionar Empleado (Solo visible al AÑADIR nuevo permiso) -->
+              <div class="form-field-group" id="addSelectEmpGroup">
+                <label for="selectEmpleado" class="form-field-label">Seleccionar Empleado</label>
+                <div class="form-select-wrapper">
+                  <select id="selectEmpleado" name="id_empleado" class="form-pill-input" required>
+                    <option value="" disabled selected>Buscar Empleado...</option>
+                    <!-- Inyectado dinámicamente con los empleados -->
+                  </select>
+                  <i class="fas fa-chevron-down form-select-chevron"></i>
+                </div>
+              </div>
+
+              <!-- Campo 2: Tipo de Permiso -->
+              <div class="form-field-group">
+                <label for="selectFormTipo" class="form-field-label">Tipo de Permiso</label>
+                <div class="form-select-wrapper">
+                  <select id="selectFormTipo" name="tipo" class="form-pill-input" required>
+                    <option value="Médico">Médico</option>
+                    <option value="Vacaciones">Vacaciones</option>
+                    <option value="Personal">Personal</option>
+                  </select>
+                  <i class="fas fa-chevron-down form-select-chevron"></i>
+                </div>
+              </div>
+
+              <!-- Campos 3 y 4: Fechas Desde y Hasta (Dos Columnas) -->
+              <div class="form-two-cols">
+                <div class="form-field-group">
+                  <label for="inputFechaDesde" class="form-field-label">Desde</label>
+                  <div class="date-input-pill-wrap">
+                    <input type="date" id="inputFechaDesde" name="fecha_inicio" class="form-pill-input date-input" placeholder="dd/mm/aaaa" required>
+                    <i class="far fa-calendar-alt calendar-icon"></i>
+                  </div>
+                </div>
+                <div class="form-field-group">
+                  <label for="inputFechaHasta" class="form-field-label">Hasta</label>
+                  <div class="date-input-pill-wrap">
+                    <input type="date" id="inputFechaHasta" name="fecha_fin" class="form-pill-input date-input" placeholder="dd/mm/aaaa" required>
+                    <i class="far fa-calendar-alt calendar-icon"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Campo 5: Motivo y Detalles -->
+              <div class="form-field-group flex-grow-field">
+                <label for="textareaMotivo" class="form-field-label">Motivo y Detalles</label>
+                <textarea id="textareaMotivo" name="motivo" class="form-pill-textarea" placeholder="Ingrese el motivo o descripción del permiso..."></textarea>
+              </div>
+
+              <!-- Campo 6: Justificativo (Opcional según requerimiento del usuario) -->
+              <div class="form-field-group">
+                <label class="form-field-label">Justificativo</label>
+                <div class="file-attach-container">
+                  <label for="fileJustificativo" class="file-attachment-pill" id="fileAttachLabel">
+                    <i class="fas fa-paperclip file-clip-icon"></i>
+                    <span id="fileAttachText" class="file-attach-text">Adjuntar Archivo...</span>
+                  </label>
+                  <input type="file" id="fileJustificativo" name="archivo" class="file-input-hidden" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+                  <input type="hidden" id="permisoEliminarAdjunto" name="eliminar_adjunto" value="0">
+                  <div class="file-actions-wrap" id="formFileActions" style="display: none;">
+                    <button type="button" id="btnFormDeleteAdjunto" class="btn-file-action btn-delete-file" title="Eliminar archivo justificativo">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botones de Acción del Formulario -->
+              <div class="detail-actions-row">
+                <button type="button" id="btnCancelForm" class="btn-detail-cancel">Cancelar</button>
+                <button type="submit" id="btnSaveForm" class="btn-detail-save">Guardar</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- ESTADO 3: CONSULTAR / VER INFORMACIÓN -->
+          <div id="detailViewState" class="detail-state-box">
+            <div class="view-detail-layout">
+              <!-- Encabezado con Avatar y Nombre del Empleado -->
+              <div class="view-user-header">
+                <img id="viewEmpAvatar" src="/public/assets/default-avatar.png" alt="Avatar" class="view-avatar-circle">
+                <div class="view-user-info">
+                  <h3 id="viewEmpNombre" class="view-user-name">María Pérez</h3>
+                  <span id="viewEmpCedula" class="view-user-cedula">V-32026099</span>
+                </div>
+              </div>
+
+              <!-- Campo: Tipo de Permiso -->
+              <div class="view-field-group">
+                <span class="view-field-label">Tipo de Permiso</span>
+                <div class="view-pill-box" id="viewPermisoTipo">Médico</div>
+              </div>
+
+              <!-- Campos: Fechas Desde y Hasta -->
+              <div class="view-two-cols">
+                <div class="view-field-group">
+                  <span class="view-field-label">Desde</span>
+                  <div class="view-pill-box date-box">
+                    <span id="viewPermisoDesde">15/10/2026</span>
+                    <i class="far fa-calendar-alt view-calendar-icon"></i>
+                  </div>
+                </div>
+                <div class="view-field-group">
+                  <span class="view-field-label">Hasta</span>
+                  <div class="view-pill-box date-box">
+                    <span id="viewPermisoHasta">15/11/2026</span>
+                    <i class="far fa-calendar-alt view-calendar-icon"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Campo: Motivo y Detalles -->
+              <div class="view-field-group flex-grow-field">
+                <span class="view-field-label">Motivo y Detalles</span>
+                <div class="view-textarea-box" id="viewPermisoMotivo">
+                  Tratamiento y reposo médico certificado por especialista traumatológico.
+                </div>
+              </div>
+
+              <!-- Campo: Justificativo -->
+              <div class="view-field-group">
+                <span class="view-field-label">Justificativo</span>
+                <div class="view-attachment-box" id="viewPermisoAdjuntoWrapper">
+                  <div class="view-adjunto-left">
+                    <i class="fas fa-paperclip file-clip-icon"></i>
+                    <a id="viewPermisoAdjuntoLink" href="#" target="_blank" class="view-attachment-link">Justificativo Medico.PDF</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botones de Acción de Visualización: Cerrar y Editar -->
+              <div class="detail-actions-row">
+                <button type="button" id="btnCloseView" class="btn-detail-cancel">Cerrar</button>
+                <button type="button" id="btnEditView" class="btn-detail-save">Editar</button>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL FLOTANTE DE CONFIRMACIÓN PARA ELIMINAR (ADVERTENCIA EN EL MEDIO)
+       ========================================================================== -->
+  <div id="deleteConfirmBackdrop" class="modal-backdrop">
+    <div class="modal-warning-card">
+      <div class="warning-icon-wrap">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3 class="warning-title">¿Eliminar Permiso?</h3>
+      <p class="warning-text">
+        ¿Está seguro que desea eliminar el permiso de <strong id="deleteTargetName">María Pérez</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+      <div class="warning-actions">
+        <button type="button" id="btnCancelDelete" class="btn-modal-cancel">Cancelar</button>
+        <button type="button" id="btnConfirmDelete" class="btn-modal-confirm-delete">Sí, Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/public/js/common.js"></script>
+  <script src="/public/js/permisos.js"></script>
+</body>
+</html>

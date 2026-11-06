@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión - C.E.I. Simón Díaz</title>
+  <link rel="icon" type="image/png" href="/assets/escudo.png">
+  <link rel="stylesheet" href="/public/css/login.css">
+</head>
+<body class="login-page">
+  <div class="login-screen">
+    <!-- COLUMNA IZQUIERDA: FACHADA SUPERIOR + FONDO MARINO INFERIOR + ESCUDO CENTRAL -->
+    <div class="login-left-panel">
+      <!-- Mitad Superior: Fotografía de la fachada -->
+      <div class="left-top-facade"></div>
+
+      <!-- Escudo Institucional en la intersección -->
+      <div class="left-shield-container">
+        <img src="/assets/escudo.png" alt="Escudo C.E.I. Simón Díaz" class="left-shield-img">
+      </div>
+
+      <!-- Mitad Inferior: Bloque azul marino con títulos institucionales -->
+      <div class="left-bottom-solid">
+        <h2 class="left-school-title">C.E.I. SIMON DIAZ</h2>
+        <p class="left-school-slogan">
+          Optimización y Control Integral de<br>Personal
+        </p>
+      </div>
+    </div>
+
+    <!-- COLUMNA DERECHA: TARJETA FLOTANTE CON FORMULARIO -->
+    <div class="login-right-panel">
+      <div class="login-card">
+        <h1 class="card-title">¡BIENVENIDO!</h1>
+
+        <!-- Mensajes de alerta -->
+        <div id="loginAlert" class="login-alert"></div>
+
+        <form id="loginForm" class="login-form-inner">
+          <!-- Campo Usuario con barrita azul marino a la izquierda -->
+          <div class="custom-input-box">
+            <div class="input-accent-bar"></div>
+            <span class="input-lead-icon">
+              <!-- Ícono de usuario línea minimalista -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </span>
+            <div class="input-divider-line"></div>
+            <input 
+              type="text" 
+              id="usuario" 
+              name="usuario" 
+              class="custom-input-field" 
+              placeholder="Usuario" 
+              required 
+              autofocus 
+              autocomplete="username"
+            >
+          </div>
+
+          <!-- Campo Contraseña con barrita azul marino a la izquierda y ojo a la derecha -->
+          <div class="custom-input-box">
+            <div class="input-accent-bar"></div>
+            <span class="input-lead-icon">
+              <!-- Ícono de llave línea minimalista -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <path d="M21 2l-2 2m-1.5 1.5L14 9l-1.5-1.5-2 2 1.5 1.5-2 2 1.5 1.5-2 2 1.5 1.5-2 2"></path>
+                <circle cx="7.5" cy="16.5" r="4.5"></circle>
+              </svg>
+            </span>
+            <div class="input-divider-line"></div>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="custom-input-field" 
+              placeholder="Contraseña" 
+              required 
+              autocomplete="current-password"
+            >
+            <!-- Ícono de ojo para ver/ocultar contraseña -->
+            <span id="togglePasswordBtn" class="input-eye-btn" title="Mostrar/Ocultar contraseña">
+              <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </span>
+          </div>
+
+          <!-- Checkbox Recordar -->
+          <div class="remember-row">
+            <label class="custom-checkbox-container">
+              <input type="checkbox" id="recordar" name="recordar">
+              <span class="checkbox-visual"></span>
+              <span class="remember-label-text">Recordar</span>
+            </label>
+          </div>
+
+          <!-- Botón Iniciar Sesión -->
+          <button type="submit" id="btnLogin" class="btn-submit-login">Iniciar Sesión</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/public/js/login.js"></script>
+</body>
+</html>

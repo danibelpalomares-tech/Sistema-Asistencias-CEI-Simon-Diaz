@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empleados - C.E.I. Simón Díaz</title>
+  <link rel="icon" type="image/png" href="/assets/escudo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/public/css/common.css">
+  <link rel="stylesheet" href="/public/css/empleados.css">
+  <!-- jsPDF y SheetJS para exportación completa a PDF y Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body class="empleados-body">
+  <div class="app-layout">
+    <!-- BARRA LATERAL CENTRALIZADA (RENDERIZADA DESDE common.js) -->
+    <aside class="sidebar-modern"></aside>
+
+    <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+    <main class="content-area">
+      <!-- HEADER SUPERIOR -->
+      <header class="header-modern">
+        <div class="header-left">
+          <h1 class="page-main-title">
+            <i class="fas fa-user-friends header-icon"></i>
+            <span>Empleados</span>
+          </h1>
+          <span class="header-date current-date">Sábado, 24 de Octubre de 2026</span>
+        </div>
+
+        <!-- PERFIL DE ADMINISTRADOR CENTRALIZADO -->
+        <div id="adminCapsuleMount"></div>
+      </header>
+
+      <!-- BARRA DE HERRAMIENTAS: BÚSQUEDA Y FILTROS A LA IZQ, BOTONES ACCIÓN A LA DER -->
+      <div class="empleados-toolbar">
+        <!-- Contenedor unificado de búsqueda y filtros -->
+        <div class="search-filters-bar">
+          <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+              type="text" 
+              id="searchEmpleado" 
+              class="search-input" 
+              placeholder="Buscar Empleado..." 
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="filter-pill-select">
+            <select id="filterCargo" class="toolbar-select">
+              <option value="Todos">Cargo: Todos</option>
+              <option value="Docente">Docente</option>
+              <option value="Administrativo">Administrativo</option>
+              <option value="Mantenimiento">Mantenimiento</option>
+            </select>
+            <i class="fas fa-chevron-down select-chevron"></i>
+          </div>
+
+          <div class="filter-pill-select">
+            <select id="filterEstado" class="toolbar-select">
+              <option value="Todos">Estado: Todos</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+            <i class="fas fa-chevron-down select-chevron"></i>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="toolbar-actions">
+          <!-- Botón Exportar con Menú Desplegable (PDF o Excel con toda la información) -->
+          <div class="export-dropdown-wrapper">
+            <button type="button" id="btnExportarTrigger" class="btn-navy-pill">
+              <i class="fas fa-download"></i>
+              <span>Exportar</span>
+            </button>
+            <div id="exportMenu" class="export-menu-card">
+              <button type="button" id="btnExportPDF" class="export-menu-item">
+                <i class="fas fa-file-pdf icon-pdf"></i>
+                <span>Exportar a PDF (.pdf)</span>
+              </button>
+              <button type="button" id="btnExportExcel" class="export-menu-item">
+                <i class="fas fa-file-excel icon-excel"></i>
+                <span>Exportar a Excel (.xlsx)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Botón Añadir -->
+          <button type="button" id="btnAddEmpleado" class="btn-navy-pill">
+            <i class="fas fa-plus"></i>
+            <span>Añadir</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- CONTENEDOR PRINCIPAL FLOTANTE DE LA LISTA DE EMPLEADOS -->
+      <section class="floating-table-card">
+        <!-- Encabezados de Columna -->
+        <div class="table-header-row">
+          <span class="th-col th-foto-nombre">Foto/Nombre</span>
+          <span class="th-col th-cedula">Cedula de Identidad</span>
+          <span class="th-col th-cargo">Cargo</span>
+          <span class="th-col th-estado">Estado</span>
+          <span class="th-col th-acciones">Acciones</span>
+        </div>
+
+        <!-- Contenedor de Filas Flotantes (Máximo 6 Empleados) -->
+        <div id="empleadosListContainer" class="floating-rows-wrapper"></div>
+
+        <!-- Paginación en la esquina inferior derecha tal cual la imagen -->
+        <div class="table-pagination-footer">
+          <div id="paginationWidget" class="pagination-widget">
+            <button type="button" id="btnPagePrev" class="page-nav-arrow" title="Página anterior">
+              <i class="fas fa-arrow-left"></i>
+            </button>
+            <div id="pageNumbersCapsule" class="page-numbers-capsule">
+              <span class="page-number-pill active">1</span>
+              <span class="page-number-pill">2</span>
+              <span class="page-number-pill">3</span>
+              <span class="page-number-pill">4</span>
+            </div>
+            <button type="button" id="btnPageNext" class="page-nav-arrow" title="Página siguiente">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL UNIFICADO: AÑADIR / VER / EDITAR EMPLEADO (DISEÑO SPLIT PANEL)
+       ========================================================================== -->
+  <div id="employeeModalBackdrop" class="modal-backdrop">
+    <div class="split-modal-card">
+      <form id="employeeForm" enctype="multipart/form-data">
+        <input type="hidden" id="empFormId" name="id">
+        <input type="hidden" id="empFormMode" value="add"> <!-- add | view | edit -->
+
+        <div class="split-modal-layout">
+          <!-- PANEL IZQUIERDO -->
+          <div class="modal-left-panel">
+            <div class="modal-left-top">
+              <!-- Avatar circular grande con botón de cámara y botón de eliminar foto -->
+              <div class="modal-avatar-container">
+                <img id="modalAvatarPreview" src="/public/assets/default-avatar.png" alt="Avatar" class="modal-avatar-img">
+                <label for="modalPhotoInput" id="modalCameraBtn" class="modal-camera-btn" title="Subir foto del empleado">
+                  <i class="fas fa-camera"></i>
+                </label>
+                <button type="button" id="modalDeletePhotoBtn" class="modal-delete-photo-btn" title="Quitar foto (restablecer por defecto)" style="display: none;">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+                <input type="file" id="modalPhotoInput" name="foto" accept="image/*" style="display: none;">
+                <input type="hidden" id="modalEliminarFoto" name="eliminar_foto" value="0">
+              </div>
+              <h4 id="modalLeftName" class="modal-left-employee-name">Nombre</h4>
+            </div>
+
+            <!-- Pestañas verticales en forma de píldora -->
+            <div class="modal-nav-tabs">
+              <button type="button" id="tabBtnPersonal" class="modal-tab-pill active">
+                Información Personal
+              </button>
+              <button type="button" id="tabBtnInstitucional" class="modal-tab-pill">
+                Información Institucional
+              </button>
+            </div>
+
+            <!-- Etiqueta inferior con el nombre de la sección -->
+            <div class="modal-left-bottom">
+              <span id="modalSectionLabel" class="modal-section-caption">Sección Añadir Empleado</span>
+            </div>
+          </div>
+
+          <!-- PANEL DERECHO (MANTIENE LA MISMA ALTURA Y DIMENSIÓN EN AMBAS PESTAÑAS) -->
+          <div class="modal-right-panel">
+            <div class="modal-right-header">
+              <h3 id="modalRightTitle" class="modal-right-title">Información Personal</h3>
+            </div>
+
+            <div class="modal-right-body">
+              <!-- PESTAÑA 1: INFORMACIÓN PERSONAL -->
+              <div id="tabContentPersonal" class="tab-content-panel active">
+                <div class="form-row-2col">
+                  <div class="form-field-group">
+                    <label class="field-label">Nombres</label>
+                    <input type="text" id="inputNombres" name="nombres" class="modal-field-input" placeholder="Ej. María" required>
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label">Apellidos</label>
+                    <input type="text" id="inputApellidos" name="apellidos" class="modal-field-input" placeholder="Ej. Pérez" required>
+                  </div>
+                </div>
+
+                <div class="form-row-2col">
+                  <div class="form-field-group">
+                    <label class="field-label">Cédula de Identidad</label>
+                    <div class="cedula-compound-box">
+                      <div class="cedula-prefix-wrapper">
+                        <select id="selectTipoCedula" name="tipo_cedula" class="cedula-prefix-select">
+                          <option value="V">V</option>
+                          <option value="E">E</option>
+                        </select>
+                        <i class="fas fa-chevron-down prefix-chevron"></i>
+                      </div>
+                      <input type="text" id="inputCedula" name="cedula" class="modal-field-input cedula-num-input" placeholder="32026099" required>
+                    </div>
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label">Genero</label>
+                    <div class="select-wrapper">
+                      <select id="selectGenero" name="genero" class="modal-field-input modal-select">
+                        <option value="Femenino">Femenino</option>
+                        <option value="Masculino">Masculino</option>
+                      </select>
+                      <i class="fas fa-chevron-down select-chevron-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-row-2col">
+                  <div class="form-field-group">
+                    <label class="field-label">Fecha de Nacimiento</label>
+                    <div class="date-input-wrapper">
+                      <input type="date" id="inputNacimiento" name="fecha_nacimiento" class="modal-field-input date-input" value="2001-10-29">
+                      <i class="far fa-calendar-alt calendar-icon"></i>
+                    </div>
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label">Número de Teléfono</label>
+                    <input type="text" id="inputTelefono" name="telefono" class="modal-field-input" placeholder="04247438437">
+                  </div>
+                </div>
+
+                <div class="form-row-full">
+                  <div class="form-field-group">
+                    <label class="field-label">Correo Electrónico</label>
+                    <input type="email" id="inputEmail" name="email" class="modal-field-input" placeholder="correo@ejemplo.com">
+                  </div>
+                </div>
+
+                <div class="form-row-full">
+                  <div class="form-field-group">
+                    <label class="field-label">Dirección</label>
+                    <textarea id="inputDireccion" name="direccion" class="modal-field-textarea" placeholder="Dirección de habitación..."></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PESTAÑA 2: INFORMACIÓN INSTITUCIONAL (MANTIENE EXACTAMENTE EL MISMO TAMAÑO) -->
+              <div id="tabContentInstitucional" class="tab-content-panel">
+                <div class="form-row-2col">
+                  <div class="form-field-group">
+                    <label class="field-label">Cargo</label>
+                    <div class="select-wrapper">
+                      <!-- CARGOS: DOCENTE, ADMINISTRATIVO, MANTENIMIENTO -->
+                      <select id="selectCargo" name="cargo" class="modal-field-input modal-select" required>
+                        <option value="Docente">Docente</option>
+                        <option value="Administrativo">Administrativo</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                      </select>
+                      <i class="fas fa-chevron-down select-chevron-right"></i>
+                    </div>
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label">Activo / Inactivo</label>
+                    <div class="select-wrapper">
+                      <select id="selectEstado" name="estado" class="modal-field-input modal-select" required>
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                      </select>
+                      <i class="fas fa-chevron-down select-chevron-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-row-2col">
+                  <div class="form-field-group">
+                    <label class="field-label">Nivel Académico</label>
+                    <input type="text" id="inputNivelAcademico" name="nivel_academico" class="modal-field-input" placeholder="Ej. Bachiller / Licenciado" value="Bachiller">
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label">Fecha de Ingresos</label>
+                    <div class="date-input-wrapper">
+                      <input type="date" id="inputFechaIngreso" name="fecha_ingreso" class="modal-field-input date-input" value="2023-12-01">
+                      <i class="far fa-calendar-alt calendar-icon"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones inferiores de acción -->
+            <div class="modal-right-footer">
+              <button type="button" id="modalBtnSecondary" class="btn-modal-cancel">Cancelar</button>
+              <button type="button" id="modalBtnPrimary" class="btn-modal-submit">Registrar</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL FLOTANTE DE ADVERTENCIA PARA ELIMINAR EMPLEADO
+       ========================================================================== -->
+  <div id="deleteConfirmBackdrop" class="modal-backdrop">
+    <div class="floating-alert-card">
+      <div class="alert-icon-circle">
+        <i class="fas fa-trash-alt"></i>
+      </div>
+      <h3 class="alert-title">¿Eliminar Empleado?</h3>
+      <p class="alert-description">
+        ¿Está seguro de que desea eliminar a <strong id="deleteEmpName">María Pérez</strong> (<span id="deleteEmpCedula">V-32026099</span>)? Esta acción no se puede deshacer.
+      </p>
+      <div class="alert-buttons-row">
+        <button type="button" id="btnCancelDelete" class="btn-alert-cancel">Cancelar</button>
+        <button type="button" id="btnConfirmDelete" class="btn-alert-delete">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/public/js/common.js"></script>
+  <script src="/public/js/empleados.js"></script>
+</body>
+</html>
